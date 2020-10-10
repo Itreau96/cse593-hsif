@@ -1,0 +1,3 @@
+[submodule "hsif/googletest"]
+	path = hsif/googletest
+	url = https://github.com/google/googletest.git
