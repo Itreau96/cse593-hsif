@@ -3,9 +3,9 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-set(CMAKE_CXX_STANDARD 17)
+project (HSIF)
 
-project ("hsif")
+set(CMAKE_CXX_STANDARD 17)
 
 option(PACKAGE_TESTS "Build the tests" ON)
 if(PACKAGE_TESTS)
@@ -14,4 +14,4 @@ if(PACKAGE_TESTS)
 endif()
 
 # Include sub-projects.
-add_subdirectory ("src")
+add_subdirectory(src)
