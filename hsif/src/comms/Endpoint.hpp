@@ -1,40 +1,33 @@
 #pragma once
 
-#include <unistd.h> 
-#include <stdio.h> 
-#include <sys/socket.h> 
-#include <stdlib.h> 
-#include <netinet/in.h> 
-#include <string> 
+#undef UNICODE
+
+#define WIN32_LEAN_AND_MEAN
+
+#include <windows.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string>
+#include <any>
+#include <functional>
+#include "MsgData.hpp"
+#include "DataManager.hpp"
+
+#pragma comment (lib, "Ws2_32.lib")
+
+#define DEFAULT_BUFLEN 512
+#define DEFAULT_PORT "27015"
+
+using DataReceiveCallback = std::function<void(MsgDataPtr)>;
 
 class Endpoint
 {
 public:
-	Endpoint() : ip_(""), port_(-1), active_(false) {}
-
-	Endpoint(std::string ip, unsigned int port) : ip_(ip), port_(port), active_(false) {}
+    Endpoint(SOCKET clientSocket, unsigned int bufferSize, DataReceiveCallback callback); // Also pass in data manager as event. When data is received, add data to data manager.
 
 	~Endpoint() = default;
-
-	void setIp(std::string ip)
-	{
-		ip_ = ip;
-	}
-
-	const std::string getIp()
-	{
-		return ip_;
-	}
-
-	void setPort(unsigned int port)
-	{
-		port_ = port;
-	}
-
-	const unsigned int getPort()
-	{
-		return port_;
-	}
 
 	void setBufferSize(size_t bufferSize)
 	{
@@ -46,22 +39,18 @@ public:
 		return bufferSize_;
 	}
 
-	void 
+	bool sendData(const std::any& data, size_t dataSize);
 
-	bool connect();
+	bool valid();
 
-	void disconnect();
-
-	void* readData(); // Use message data here
-
-	bool writeData(void* someData); // Use message data here
+	void cleanup();
 
 private:
-	std::string ip_;
-	unsigned int port_;
-	bool active_;
+	bool valid_;
+	DataReceiveCallback callback_;
+	int iResult_;
+    SOCKET clientSocket_;
 	size_t bufferSize_;
-
-	int sockfd_;
-	int connection_;
+	char recvbuf_[DEFAULT_BUFLEN];
+	int recvbuflen_;
 };

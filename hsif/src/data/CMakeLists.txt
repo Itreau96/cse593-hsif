@@ -1,17 +1,22 @@
 set (TARGET data)
 
 set(SOURCE
-	Message.cpp
+	MsgData.cpp
+	DataManager.cpp
 )
 
 set(HEADERS
-	Message.hpp
+	MsgData.hpp
+	DataManager.hpp
 )
 
 add_library(${TARGET} STATIC
 			${SOURCE}
 			${HEADERS})
 
+#target_include_directories( ${TARGET} PUBLIC ${CMAKE_SOURCE_DIR}/src/comms )
+#target_link_libraries(${TARGET} comms)
+
 if (PACKAGE_TESTS)
-	add_subdirectory(tests)
+	#add_subdirectory(tests)
 endif()

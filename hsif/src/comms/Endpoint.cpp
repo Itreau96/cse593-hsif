@@ -1,56 +1,75 @@
 #include "Endpoint.hpp"
 
-bool Endpoint::connect()
+Endpoint::Endpoint(SOCKET clientSocket, unsigned int bufferSize, DataReceiveCallback callback) :
+    clientSocket_(clientSocket),
+    bufferSize_(bufferSize),
+    callback_(callback),
+    valid_(true)
 {
-    // Create a socket (IPv4, TCP)
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd == -1) {
-        std::cout << "Failed to create socket. errno: " << errno << std::endl;
-        return false;
-    }
+    int iSendResult;
+    recvbuflen_ = bufferSize;
 
-    // Listen to port 9999 on any address
-    sockaddr_in sockaddr;
-    sockaddr.sin_family = AF_INET;
-    sockaddr.sin_addr.s_addr = inet_addr(ip_);
-    sockaddr.sin_port = htons(port_); // htons is necessary to convert a number to
-                                     // network byte order
-    if (bind(sockfd, (struct sockaddr*)&sockaddr, sizeof(sockaddr)) < 0) {
-        std::cout << "Failed to bind to port 9999. errno: " << errno << std::endl;
-        return false;
-    }
+    // Receive until the peer shuts down the connection
+    do {
+        iResult_ = recv(clientSocket_, recvbuf_, recvbuflen_, 0);
+        if (iResult_ > 0) {
+            printf("Bytes received: %d\n", iResult_);
+            MsgDataPtr ptr = std::make_shared<MsgData>(recvbuf_, recvbuflen_, "me", "you");
+            callback(ptr);
 
-    // Start listening. Hold at most 10 connections in the queue
-    if (listen(sockfd, 10) < 0) {
-        std::cout << "Failed to listen on socket. errno: " << errno << std::endl;
-        return false;
-    }
+            char* buffer = "ack";
+            int iSendResult = send(clientSocket_, buffer, sizeof(buffer), 0);
+            if (iSendResult == SOCKET_ERROR) {
+                printf("send failed with error: %d\n", WSAGetLastError());
+                cleanup();
+                return;
+            }
+            printf("Bytes sent: %d\n", iSendResult);
+        }
+        else if (iResult_ == 0)
+            printf("Connection closing...\n");
+        else {
+            printf("recv failed with error: %d\n", WSAGetLastError());
+            cleanup();
+            return;
+        }
 
-    // Grab a connection from the queue
-    auto addrlen = sizeof(sockaddr);
-    int connection = accept(sockfd, (struct sockaddr*)&sockaddr, (socklen_t*)&addrlen);
-    if (connection < 0) {
-        std::cout << "Failed to grab connection. errno: " << errno << std::endl;
-        return false;
-    }
+    } while (iResult_ > 0);
+
+    cleanup();
 }
 
-void* Endpoint::readData()
+bool Endpoint::sendData(const std::any& data, size_t dataSize)
 {
-    // Read from the connection
-    char buffer[bufferSize_];
-    auto bytesRead = read(connection, buffer, 100);
-    return bytesRead;
+    char* buffer = std::any_cast<char*>(data);
+    int iSendResult = send(clientSocket_, buffer, dataSize, 0);
+    if (iSendResult == SOCKET_ERROR) {
+        printf("send failed with error: %d\n", WSAGetLastError());
+        closesocket(clientSocket_);
+        WSACleanup();
+        return false;
+    }
+    printf("Bytes sent: %d\n", iSendResult);
+
+    return true;
 }
 
-bool Endpoint::writeData(void* someData)
+bool Endpoint::valid()
 {
-    // Send a message to the connection
-    send(connection, (char*)someData, bufferSize_, 0);
+    return valid_;
 }
 
-void Endpoint::disconnect()
+void Endpoint::cleanup()
 {
-    close(connection_);
-    close(sockfd_);
+    // shutdown the connection since we're done
+    iResult_ = shutdown(clientSocket_, SD_SEND);
+    if (iResult_ == SOCKET_ERROR) {
+        printf("shutdown failed with error: %d\n", WSAGetLastError());
+        closesocket(clientSocket_);
+        return;
+    }
+
+    // cleanup
+    closesocket(clientSocket_);
+    valid_ = false;
 }
