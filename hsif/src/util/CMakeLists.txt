@@ -1,10 +1,8 @@
-set(TARGET util)
+set( TARGET util )
 
-file(GLOB HEADERS *.h)
+set( HEADERS
+	Logger.hpp
+)
 
 add_library(${TARGET} INTERFACE)
 target_sources(${TARGET} INTERFACE ${HEADERS})
-
-if (PACKAGE_TESTS)
-	#add_subdirectory(tests)
-endif()

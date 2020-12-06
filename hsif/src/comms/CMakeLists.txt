@@ -15,8 +15,6 @@ add_library(${TARGET} STATIC
 			${HEADERS})
 
 target_include_directories( ${TARGET} PUBLIC ${CMAKE_SOURCE_DIR}/src/data )
-target_link_libraries(${TARGET} data )
-
-if (PACKAGE_TESTS)
-	add_subdirectory(tests)
-endif()
+target_include_directories( ${TARGET} PUBLIC ${CMAKE_SOURCE_DIR}/src/util )
+target_link_libraries(${TARGET} data util )
+target_include_directories(${TARGET} PUBLIC include)

@@ -13,44 +13,93 @@
 #include <any>
 #include <functional>
 #include "MsgData.hpp"
-#include "DataManager.hpp"
+#include <queue>
+
+/*
+Copyright 2020 Itreau Bigsby
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+@author   Itreau Bigsby    mailto:ibigsby@asu.edu
+ */
 
 #pragma comment (lib, "Ws2_32.lib")
 
-#define DEFAULT_BUFLEN 512
-#define DEFAULT_PORT "27015"
+#define PACKET_SIZE 1024
 
-using DataReceiveCallback = std::function<void(MsgDataPtr)>;
-
+/// <summary>
+/// Used to encapsulate client socket information. Provides functionality for 
+/// sending, and receiving data using windows sockets.
+/// </summary>
 class Endpoint
 {
 public:
-    Endpoint(SOCKET clientSocket, unsigned int bufferSize, DataReceiveCallback callback); // Also pass in data manager as event. When data is received, add data to data manager.
-
+	/// <summary>
+	/// Default constructor/destructors
+	/// </summary>
+	Endpoint() = delete;
 	~Endpoint() = default;
 
-	void setBufferSize(size_t bufferSize)
-	{
-		bufferSize_ = bufferSize;
-	}
+    /// <summary>
+    /// Primary constructor. Accepts an existing socket connection as input.
+    /// </summary>
+    /// <param name="clientSocket">Existing client connection.</param>
+    Endpoint(SOCKET clientSocket);
 
-	const size_t getBufferSize()
-	{
-		return bufferSize_;
-	}
+	/// <summary>
+	/// Receives JSON message string to process as socket input.
+	/// </summary>
+	/// <param name="msg">JSON string message.</param>
+	void receiveMsg(std::string msg);
 
-	bool sendData(const std::any& data, size_t dataSize);
+	/// <summary>
+	/// Processes received packet.
+	/// </summary>
+	/// <returns>Returns whether or not process was successful.</returns>
+	bool processRecv();
 
-	bool valid();
+	/// <summary>
+	/// Signals to the endpoint that the previous packet has successfully sent
+	/// and its resources can be cleared.
+	/// </summary>
+	void bufferReady();
 
+	/// <summary>
+	/// Closes socket connection.
+	/// </summary>
 	void cleanup();
 
+	// Operates as contiguous message inbox string
+	std::string inbox;
+	
+	// Operates as outgoing message queue
+	std::queue<std::string> outbox;
+
+	// Winsock intermediary buffer resources
+	char sendBuffer[PACKET_SIZE];
+	char recvBuffer[PACKET_SIZE];
+	WSABUF buff;
+	size_t bytesSent;
+	size_t bytesRecv;
+	size_t contentSize;
+	
+	// Endpoint identifier
+	std::string id;
+
+	// Client socket instance
+	SOCKET socket;
+
 private:
-	bool valid_;
-	DataReceiveCallback callback_;
-	int iResult_;
-    SOCKET clientSocket_;
-	size_t bufferSize_;
-	char recvbuf_[DEFAULT_BUFLEN];
-	int recvbuflen_;
+	// Packet processing resources
+	size_t dataSize_;
+	std::string messageBuffer_;
+	size_t msgBytesRecv_;
 };
