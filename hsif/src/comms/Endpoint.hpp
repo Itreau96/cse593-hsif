@@ -101,5 +101,4 @@ private:
 	// Packet processing resources
 	size_t dataSize_;
 	std::string messageBuffer_;
-	size_t msgBytesRecv_;
 };

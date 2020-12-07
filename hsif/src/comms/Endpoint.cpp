@@ -24,8 +24,7 @@ Endpoint::Endpoint(SOCKET clientSocket) :
     bytesRecv(0),
     bytesSent(0),
     dataSize_(0),
-    contentSize(0),
-    msgBytesRecv_(0)
+    contentSize(0)
 {}
 
 bool Endpoint::processRecv()
@@ -36,15 +35,14 @@ bool Endpoint::processRecv()
     // Convert char array to string for simpler processing
     std::string stringBuffer(recvBuffer);
     // If dataSize not set, we are receiving a new message
-    if (dataSize_ == 0)
+    while (stringBuffer != "")
     {
-        // First check if string buffer has size delimiter (always has to have if new message)
-        if (stringBuffer.find('\r') == std::string::npos)
-            return false;
-        else
+        if (dataSize_ == 0)
         {
-            // While string contains delimiter, process incoming messages
-            while (stringBuffer.find('\r') != std::string::npos)
+            // First check if string buffer has size delimiter (always has to have if new message)
+            if (stringBuffer.find('\r') == std::string::npos)
+                return false;
+            else
             {
                 std::vector<std::string> partitions;
                 // Split header from payload
@@ -56,87 +54,33 @@ bool Endpoint::processRecv()
                 // If payload exists in current packet, process
                 if (partitions[1] != "")
                 {
-                    // If partition is size of message, process and clear buffer
-                    if (partitions[1].length() < dataSize_)
-                    {
-                        messageBuffer_ += partitions[1];
-                        msgBytesRecv_ += sizeof(partitions[1]);
-                        stringBuffer = "";
-                    }
-                    // If partition doesn't contain full message, add to buffer and clear packet resources
-                    else
-                    {
-                        std::string message = partitions[1].substr(0, dataSize_);
-                        stringBuffer = partitions[1].substr(dataSize_);
-                        outbox.push(message);
-                        dataSize_ = 0;
-                        msgBytesRecv_ = 0;
-                    }
+                    stringBuffer = partitions[1];
                 }
             }
         }
-    }
-    // If size is known, we are still processing previous message
-    else
-    {
-        // If multiple messages in buffer, process all packets
-        if (bytesRecv > dataSize_ - msgBytesRecv_)
-        {
-            // Exctract remainder of message and append to outbox
-            std::string remainingData = stringBuffer.substr(0, dataSize_ - msgBytesRecv_);
-            std::string message = messageBuffer_ + remainingData;
-            outbox.push(message);
-            // Begin processing remainder of messages
-            stringBuffer = stringBuffer.substr(dataSize_ - msgBytesRecv_);
-            dataSize_ = 0;
-            msgBytesRecv_ = 0;
-
-            // While messages in packet, extract and send to outbox
-            while (stringBuffer.find('\r') != std::string::npos)
-            {
-                std::vector<std::string> partitions;
-                // Split header from payload
-                partitions.push_back(stringBuffer.substr(0, stringBuffer.find('\r')));
-                partitions.push_back(stringBuffer.substr(stringBuffer.find('\r') + 1));
-
-                // Process payload size
-                dataSize_ = std::stoi(partitions[0]);
-                // If payload exists in packet, process
-                if (partitions[1] != "")
-                {
-                    // If full payload not in packet, add to buffer and continue
-                    if (partitions[1].length() < dataSize_)
-                    {
-                        messageBuffer_ += partitions[1];
-                        msgBytesRecv_ += sizeof(partitions[1]);
-                        stringBuffer = "";
-                    }
-                    // If payload in packet, extract and continue
-                    else
-                    {
-                        std::string message = partitions[1].substr(0, dataSize_);
-                        stringBuffer = partitions[1].substr(dataSize_);
-                        outbox.push(message);
-                        dataSize_ = 0;
-                        msgBytesRecv_ = 0;
-                    }
-                }
-            }
-        }
-        // If payload only in packet, process and continue
-        else if (stringBuffer.length() + msgBytesRecv_ == dataSize_)
-        {
-            std::string message = messageBuffer_ + stringBuffer;
-            outbox.push(message);
-            dataSize_ = 0;
-            messageBuffer_ = "";
-            msgBytesRecv_ = 0;
-;        }
-        // If full payload not in packet, add to buffer and continue 
+        // If size is known, we are still processing previous message
         else
         {
-            messageBuffer_ += stringBuffer;
-            msgBytesRecv_ += sizeof(stringBuffer);
+            // Check if message contained in packet
+            if (stringBuffer.length() >= dataSize_)
+            {
+                // Extract message
+                std::string remainingData = stringBuffer.substr(0, dataSize_);
+                std::string message = messageBuffer_ + remainingData;
+                outbox.push(message);
+                // Reset buffers and size variables
+                stringBuffer = stringBuffer.substr(dataSize_);
+                messageBuffer_ = "";
+                dataSize_ = 0;
+            }
+            // If only part, subtract from data size and continue
+            else
+            {
+                // Append to buffer and continue
+                dataSize_ -= stringBuffer.length();
+                messageBuffer_ += stringBuffer;
+                stringBuffer = "";
+            }
         }
     }
     // Clear recv buffer and recv byte counter
