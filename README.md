@@ -1,6 +1,6 @@
 # Hardware to Software Integration Framework (HSIF)
 
-The contents of this readme can be viewed using proper formatting at this [link](https://github.com/Itreau96/cse593-hsif/blob/master/README.md).
+The contents of this readme can be viewed in proper format at this [link](https://github.com/Itreau96/cse593-hsif/blob/master/README.md).
 
 HSIF is a light-weight C/C++ framework for integrating hardware-in-the-loop testing and computing platforms. Robotics and autonomous vehicles are just a few examples of business domains that greatly benefit (and necessitate) realistic testing environments and platforms. However, most platforms that support this form of testing are rigid and singular in purpose. Aside from the safety critical applications mentioned, HSIF can lend itself to a variety of different software domains (entertainment, video games, virtual reality, networking, etc.). With the IOT domain growing at an exponential pace, custom hardware/software integration platforms are becoming more and more of a necessity. At its core, HSIF values speed, modularity, efficiency, and extensibility.
 
