@@ -1,5 +1,7 @@
 # Hardware to Software Integration Framework (HSIF)
 
+The contents of this readme can be viewed using proper formatting at this [link](https://github.com/Itreau96/cse593-hsif/blob/master/README.md).
+
 HSIF is a light-weight C/C++ framework for integrating hardware-in-the-loop testing and computing platforms. Robotics and autonomous vehicles are just a few examples of business domains that greatly benefit (and necessitate) realistic testing environments and platforms. However, most platforms that support this form of testing are rigid and singular in purpose. Aside from the safety critical applications mentioned, HSIF can lend itself to a variety of different software domains (entertainment, video games, virtual reality, networking, etc.). With the IOT domain growing at an exponential pace, custom hardware/software integration platforms are becoming more and more of a necessity. At its core, HSIF values speed, modularity, efficiency, and extensibility.
 
 ## Prerequisites
@@ -90,7 +92,7 @@ The quickstart example is ideal for demonstrating HSIF server functionality on W
 5. Open the QEMU instance (setup described in Installation section).
 6. Open a terminal window in QEMU and navigate to the rpi_endpt_emu.py file.
 7. Determine the ip address of the Windows host using an ipconfig call on the machine. 
-6. Run the endpoint using the following command: python .\rpi_endpt_emu.py <windows-ip> 8888 rpi sim 2
+6. Run the endpoint using the following command: python .\rpi_endpt_emu.py (windows-ip) 8888 rpi sim 2
 7. You should see output within all three software consoles demonstrating Unity receiving simulated temperature data from the QEMU endpoint via the HSIF server.
 
 ### Hardware
@@ -102,5 +104,5 @@ The quickstart example is ideal for demonstrating HSIF server functionality on W
 5. Power on the Rpi board (setup described in Installation section).
 6. Open a terminal window on the Rpi OS and navigate to the rpi_endpt_emu.py file.
 7. Determine the ip address of the Windows machine using an ipconfig call on the machine. 
-6. Run the endpoint using the following command: python .\rpi_endpt_emu.py <windows-ip> 8888 rpi sim 2
+6. Run the endpoint using the following command: python .\rpi_endpt_emu.py (windows-ip) 8888 rpi sim 2
 7. You should see output within all three software consoles demonstrating Unity receiving temperature data from the Rpi endpoint via the HSIF server.
