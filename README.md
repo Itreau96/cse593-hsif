@@ -68,9 +68,9 @@ The quickstart example is ideal for demonstrating HSIF server functionality on W
 1. Open the HSIF server project in Visual Studio (setup described in Installation section).
 2. Run in Visual Studio by selecting Debug->Start Debugging or by running the generated .exe directly.
 3. Open a command line window with Python3 in its path. Navigate to the rpi repository directory.
-4. Run the endpoint using the following command: python .\rpi_endpt_emu.py localhost 8888 rpi sim 2
+4. Run the endpoint using the following command: ```python .\rpi_endpt_emu.py localhost 8888 rpi sim 2```
 5. Open a second terminal window with Python3 in its path. Navigate to the rpi repository directory.
-6. Run the endpoint using the following command: python .\rpi_endpt_emu.py localhost 8888 sim rpi 2
+6. Run the endpoint using the following command: ```python .\rpi_endpt_emu.py localhost 8888 sim rpi 2```
 5. You should see output within all three software consoles demonstrating simulated temperature data being sent between both python endpoints via HSIF server.
 
 **Windows + Unity Quickstart**
@@ -80,7 +80,7 @@ The quickstart example is ideal for demonstrating HSIF server functionality on W
 3. Open the Unity project (setup described in Installation section).
 4. Run the project. You should see the connection appear in the HSIF console Window.
 5. Open a command line window with Python3 in its path. Navigate to the rpi repository directory.
-6. Run the endpoint using the following command: python .\rpi_endpt_emu.py localhost 8888 rpi sim 2
+6. Run the endpoint using the following command: ```python .\rpi_endpt_emu.py localhost 8888 rpi sim 2```
 7. You should see output within all three software consoles demonstrating Unity receiving simulated temperature data from the python endpoint via the HSIF server.
 
 ### Emulation
@@ -92,7 +92,7 @@ The quickstart example is ideal for demonstrating HSIF server functionality on W
 5. Open the QEMU instance (setup described in Installation section).
 6. Open a terminal window in QEMU and navigate to the rpi_endpt_emu.py file.
 7. Determine the ip address of the Windows host using an ipconfig call on the machine. 
-6. Run the endpoint using the following command: python .\rpi_endpt_emu.py (windows-ip) 8888 rpi sim 2
+6. Run the endpoint using the following command: ```python .\rpi_endpt_emu.py (windows-ip) 8888 rpi sim 2```
 7. You should see output within all three software consoles demonstrating Unity receiving simulated temperature data from the QEMU endpoint via the HSIF server.
 
 ### Hardware
@@ -104,5 +104,5 @@ The quickstart example is ideal for demonstrating HSIF server functionality on W
 5. Power on the Rpi board (setup described in Installation section).
 6. Open a terminal window on the Rpi OS and navigate to the rpi_endpt_emu.py file.
 7. Determine the ip address of the Windows machine using an ipconfig call on the machine. 
-6. Run the endpoint using the following command: python .\rpi_endpt_emu.py (windows-ip) 8888 rpi sim 2
+6. Run the endpoint using the following command: ```python .\rpi_endpt_emu.py (windows-ip) 8888 rpi sim 2```
 7. You should see output within all three software consoles demonstrating Unity receiving temperature data from the Rpi endpoint via the HSIF server.
